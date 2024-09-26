@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import './TapMe.css';
-import coinImage from './assets/coin.png'; // Adjust path as necessary
+import coinImage from './assets/coin.png'; 
 import { useQuery, useMutation, gql } from '@apollo/client';
 
 // GraphQL queries and mutations
@@ -36,8 +36,9 @@ const UPDATE_COINS = gql`
 `;
 
 const TapMe: React.FC = () => {
-  const username = window.Telegram.WebApp.initDataUnsafe.user?.username || 'Guest';
-  console.log(username, "username");
+  // Fetch username directly from Telegram Web App context
+  const username = window.Telegram.WebApp.initDataUnsafe.user?.username || `User${window.Telegram.WebApp.initDataUnsafe.user?.id}` || 'Guest';
+  console.log(username, "username from Telegram WebApp");
 
   const [coins, setCoins] = useState<number>(0);
   const [progress, setProgress] = useState<number>(0);
