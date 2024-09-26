@@ -1,5 +1,5 @@
 // src/TapMe.tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import './TapMe.css';
 import coinImage from './assets/coin.png'; // Adjust path as necessary
@@ -36,25 +36,22 @@ const UPDATE_COINS = gql`
 `;
 
 const TapMe: React.FC = () => {
-
   const username = window.Telegram.WebApp.initDataUnsafe.user?.username || 'Guest';
+  console.log(username, "username");
 
- 
   const [coins, setCoins] = useState<number>(0);
   const [progress, setProgress] = useState<number>(0);
   const [level, setLevel] = useState<number>(1);
   const [userId, setUserId] = useState<string | null>(null);
 
- 
+  // Fetch the user based on username
   const { data, loading, error } = useQuery(GET_USER, {
     variables: { username },
     onCompleted: (data) => {
-      if (data.getUser) {
-        
+      if (data && data.getUser) {
         setCoins(data.getUser.coins);
         setUserId(data.getUser.id);
       } else {
-        
         handleCreateUser();
       }
     },
@@ -71,7 +68,7 @@ const TapMe: React.FC = () => {
 
   const [updateCoins] = useMutation(UPDATE_COINS);
 
-  
+  // Function to create a new user if not found
   const handleCreateUser = () => {
     if (username) {
       createUser({ variables: { username } }).catch((err) => {
@@ -82,7 +79,7 @@ const TapMe: React.FC = () => {
     }
   };
 
-
+  // Function to handle tapping the button to earn coins
   const handleTap = () => {
     const newCoins = coins + 1;
     setCoins(newCoins);
