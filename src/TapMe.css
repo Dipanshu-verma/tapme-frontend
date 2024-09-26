@@ -1,67 +1,105 @@
- 
-
 .container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    background: #1e1e2f;
-    color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background: radial-gradient(circle at 50% 20%, #7a6747, #1b1b2b 60%, #0d0d11);
+  color: white;
+}
+
+.coin-display {
+  font-size: 3.4rem;
+  font-weight:500;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.tap-button {
+  position: relative;
+  width: 300px;
+  height: 300px;
+  background: no-repeat center;
+  background-size: contain;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  margin: 20px 0;
+  transition: transform 0.2s;
+  overflow: hidden;  
+}
+
+.tap-button:active {
+  transform: scale(0.95);
+}
+
+.bubble {
+  position: absolute;
+  font-size: 30px;
+  font-weight: bold;
+  color: white;
+  animation: bubbleUp 1s ease forwards;
+}
+
+@keyframes bubbleUp {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
-  
-  .coin-display {
-    font-size: 2rem;
-    margin-bottom: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+  100% {
+    opacity: 0;
+    transform: translateY(-50px) scale(1.5);
   }
-  
-  .tap-button {
-    width: 150px;
-    height: 150px;
-    background: no-repeat center; /* Adjust the path based on where you saved the image */
-    background-size: contain;
-    border: none;
-    outline: none;
-    cursor: pointer;
-    margin: 20px 0;
-    transition: transform 0.2s;
-  }
-  
-  .tap-button:active {
-    transform: scale(0.95);
-  }
-  
-  .progress-bar {
-    width: 80%;
-    height: 20px;
-    background: #333;
-    border-radius: 10px;
-    overflow: hidden;
-    margin-top: 20px;
-  }
-  
-  .progress-fill {
-    height: 100%;
-    background: #fbc02d;
-    transition: width 0.3s ease-in-out;
-  }
-  
-  .user-level {
-    font-size: 1.5rem;
-    margin-top: 10px;
-  }
-  
-  .connect-wallet-button {
-    margin-top: 10px;
-    padding: 10px 20px;
-    background: #fbc02d;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: bold;
-    color: black;
-  }
-  
+}
+
+.progress-info {
+  display: flex;
+  align-items: center;
+  font-size: 1.2rem;
+  color: white;
+  margin-bottom: 5px;
+}
+
+.lightning-icon {
+  width: 25px;
+  height: 25px;
+  margin-right: 5px;
+  color: #ffce00;
+}
+
+.progress-bar {
+  width: 80%;
+  height: 20px;
+  background: #333;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-top: 20px;
+  box-shadow: 0 0 10px rgba(255, 206, 0, 0.7);
+}
+
+.progress-fill {
+  height: 100%;
+  background: #fbc02d;
+  transition: width 0.3s ease-in-out;
+}
+
+.user-level {
+  font-size: 1.5rem;
+  margin-top: 10px;
+  font-weight: bold;
+  color: #ffffff;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); /* Subtle glow */
+}
+
+
+
+.coin-count{
+  display: flex;
+  gap:6px;
+  align-items: center;
+}
+.coin-icon{
+  color:#fbc02d
+}

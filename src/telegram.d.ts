@@ -1,4 +1,4 @@
-// src/telegram.d.ts
+ 
 interface TelegramWebAppUser {
     id: number;
     is_bot: boolean;
@@ -24,3 +24,12 @@ interface TelegramWebAppUser {
     };
   }
   
+  declare module '*.mp3' {
+    const src: string;
+    export default src;
+  }
+  
+  declare module '*.png' {
+    const src: string;
+    export default src;
+  }

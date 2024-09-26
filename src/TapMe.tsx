@@ -1,11 +1,11 @@
-// src/TapMe.tsx
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import './TapMe.css';
 import coinImage from './assets/coin.png'; 
 import { useQuery, useMutation, gql } from '@apollo/client';
-
-// GraphQL queries and mutations
+import { LiaCoinsSolid } from "react-icons/lia";
+import coinSound from "./assets/coinsound.mp3";
+import { MdFlashOn } from "react-icons/md";
 const GET_USER = gql`
   query GetUser($username: String!) {
     getUser(username: $username) {
@@ -36,16 +36,21 @@ const UPDATE_COINS = gql`
 `;
 
 const TapMe: React.FC = () => {
-  // Fetch username directly from Telegram Web App context
-  const username = window.Telegram.WebApp.initDataUnsafe.user?.username || `User${window.Telegram.WebApp.initDataUnsafe.user?.id}` || 'Guest';
+ 
+  const username = "User6956885944"
+  
   console.log(username, "username from Telegram WebApp");
 
   const [coins, setCoins] = useState<number>(0);
   const [progress, setProgress] = useState<number>(0);
   const [level, setLevel] = useState<number>(1);
   const [userId, setUserId] = useState<string | null>(null);
+  const [bubbles, setBubbles] = useState<
+  Array<{ id: number; x: number; y: number }>
+>([]);
 
-  // Fetch the user based on username
+   const soundEffect = new Audio(coinSound);
+ 
   const { data, loading, error } = useQuery(GET_USER, {
     variables: { username },
     onCompleted: (data) => {
@@ -69,7 +74,7 @@ const TapMe: React.FC = () => {
 
   const [updateCoins] = useMutation(UPDATE_COINS);
 
-  // Function to create a new user if not found
+  
   const handleCreateUser = () => {
     if (username) {
       createUser({ variables: { username } }).catch((err) => {
@@ -80,16 +85,28 @@ const TapMe: React.FC = () => {
     }
   };
 
-  // Function to handle tapping the button to earn coins
-  const handleTap = () => {
+ 
+  const handleTap = (e: React.MouseEvent) => {
+    soundEffect.play();
     const newCoins = coins + 1;
     setCoins(newCoins);
     setProgress((prev) => (prev + 10 > 100 ? 0 : prev + 10));
-    if (progress + 10 >= 100) {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const newBubble = {
+      id: Date.now(),
+      x: e.clientX - rect.left,  
+      y: e.clientY - rect.top,  
+    };
+    if (progress + 1 >= 100) {
       setLevel((prev) => prev + 1);
     }
+    setBubbles((prev) => [...prev, newBubble]);
 
-    // Update the coin balance on the backend when the user taps
+     
+    setTimeout(() => {
+      setBubbles((prev) => prev.filter((bubble) => bubble.id !== newBubble.id));
+    }, 1000);
+  
     if (userId) {
       updateCoins({ variables: { id: userId, coins: newCoins } })
         .then(() => {
@@ -103,26 +120,45 @@ const TapMe: React.FC = () => {
     }
   };
 
-  // Handling loading and error states
+ 
   if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error loading user data.</p>;
+
+  if (error) {
+    console.error('Error loading user data:', error);
+    return <p>Error loading user data: {error.message}</p>;
+  }
 
   return (
     <div className="container">
       <div className="coin-display">
-        <span>Coins: {coins}</span>
+      <span className="coin-count">
+          <LiaCoinsSolid className="coin-icon" /> {coins}
+        </span>
         <div className="user-level">Level {level}</div>
       </div>
-      <motion.button
+       <motion.button
         className="tap-button"
         onClick={handleTap}
         whileTap={{ scale: 0.9 }}
         style={{ backgroundImage: `url(${coinImage})` }}
-      />
+      >
+        {bubbles.map((bubble) => (
+          <span
+            key={bubble.id}
+            className="bubble"
+            style={{ left: bubble.x, top: bubble.y }}
+          >
+            +1
+          </span>
+        ))}
+      </motion.button>
+      <div className="progress-info">
+        <MdFlashOn className="lightning-icon" />
+        <span className="progress-text">{progress}/100</span>
+      </div>
       <div className="progress-bar">
         <div className="progress-fill" style={{ width: `${progress}%` }}></div>
       </div>
-      <button className="connect-wallet-button">Connect Wallet</button>
     </div>
   );
 };
