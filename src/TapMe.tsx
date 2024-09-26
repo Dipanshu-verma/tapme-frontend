@@ -37,7 +37,7 @@ const UPDATE_COINS = gql`
 
 const TapMe: React.FC = () => {
  
-  const username = "User6956885944"
+  const username = window.Telegram.WebApp.initDataUnsafe.user?.username || `User${window.Telegram.WebApp.initDataUnsafe.user?.id}` || 'Guest';
   
   console.log(username, "username from Telegram WebApp");
 
