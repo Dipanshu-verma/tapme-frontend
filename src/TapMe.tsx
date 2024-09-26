@@ -36,25 +36,25 @@ const UPDATE_COINS = gql`
 `;
 
 const TapMe: React.FC = () => {
-  // Retrieve the username directly from the Telegram Web App API
+
   const username = window.Telegram.WebApp.initDataUnsafe.user?.username || 'Guest';
 
-  // States for managing coin balance, progress, level, and user ID
+ 
   const [coins, setCoins] = useState<number>(0);
   const [progress, setProgress] = useState<number>(0);
   const [level, setLevel] = useState<number>(1);
   const [userId, setUserId] = useState<string | null>(null);
 
-  // Apollo hooks to query user data and update coins
+ 
   const { data, loading, error } = useQuery(GET_USER, {
     variables: { username },
     onCompleted: (data) => {
       if (data.getUser) {
-        // If user exists, set their coins and ID
+        
         setCoins(data.getUser.coins);
         setUserId(data.getUser.id);
       } else {
-        // If user does not exist, create a new user
+        
         handleCreateUser();
       }
     },
@@ -71,7 +71,7 @@ const TapMe: React.FC = () => {
 
   const [updateCoins] = useMutation(UPDATE_COINS);
 
-  // Function to handle creating a new user if they don't exist
+  
   const handleCreateUser = () => {
     if (username) {
       createUser({ variables: { username } }).catch((err) => {
@@ -82,7 +82,7 @@ const TapMe: React.FC = () => {
     }
   };
 
-  // Function to handle tapping the button to earn coins
+
   const handleTap = () => {
     const newCoins = coins + 1;
     setCoins(newCoins);

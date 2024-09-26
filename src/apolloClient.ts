@@ -1,7 +1,7 @@
 import { ApolloClient, InMemoryCache } from '@apollo/client';
 
 const client = new ApolloClient({
-  uri: 'http://localhost:4000/', // Backend server URL
+  uri: 'https://tapme-backend-bbs3.onrender.com', 
   cache: new InMemoryCache(),
 });
 
