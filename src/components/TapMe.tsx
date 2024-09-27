@@ -145,6 +145,7 @@ const TapMe: React.FC = () => {
     return <ErrorDisplay message="Error loading user data. Please try again later." />;
   }
 
+  
   return (
     <div className="container">
       <div className="coin-display">
