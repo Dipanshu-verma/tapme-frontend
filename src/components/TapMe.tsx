@@ -1,11 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
-import './TapMe.css';
-import coinImage from './assets/coin.png'; 
+import '../styles/TapMe.css';
+import coinImage from '../assets/coin.png'; 
 import { useQuery, useMutation, gql } from '@apollo/client';
 import { LiaCoinsSolid } from "react-icons/lia";
-import coinSound from "./assets/coinsound.mp3";
+import coinSound from "../assets/coinsound.mp3";
 import { MdFlashOn } from "react-icons/md";
+import Loader from './Loader';
+import ErrorDisplay from './ErrorDisplay';
+
+// GraphQL queries and mutations
 const GET_USER = gql`
   query GetUser($username: String!) {
     getUser(username: $username) {
@@ -36,22 +40,19 @@ const UPDATE_COINS = gql`
 `;
 
 const TapMe: React.FC = () => {
- 
-  const username = window.Telegram.WebApp.initDataUnsafe.user?.username || `User${window.Telegram.WebApp.initDataUnsafe.user?.id}` || 'Guest';
-  
-  console.log(username, "username from Telegram WebApp");
+  const username = window.Telegram.WebApp.initDataUnsafe.user?.username || `User${window.Telegram.WebApp.initDataUnsafe.user?.id}` || 'User6956885944';
 
   const [coins, setCoins] = useState<number>(0);
   const [progress, setProgress] = useState<number>(0);
   const [level, setLevel] = useState<number>(1);
   const [userId, setUserId] = useState<string | null>(null);
-  const [bubbles, setBubbles] = useState<
-  Array<{ id: number; x: number; y: number }>
->([]);
+  const [bubbles, setBubbles] = useState<Array<{ id: number; x: number; y: number }>>([]);
+  const accumulatedCoins = useRef<number>(0); 
+  const updateTimeout = useRef<NodeJS.Timeout | null>(null);  
 
-   const soundEffect = new Audio(coinSound);
- 
-  const { data, loading, error } = useQuery(GET_USER, {
+  const soundEffect = new Audio(coinSound);
+
+  const { loading, error } = useQuery(GET_USER, {
     variables: { username },
     onCompleted: (data) => {
       if (data && data.getUser) {
@@ -74,7 +75,6 @@ const TapMe: React.FC = () => {
 
   const [updateCoins] = useMutation(UPDATE_COINS);
 
-  
   const handleCreateUser = () => {
     if (username) {
       createUser({ variables: { username } }).catch((err) => {
@@ -85,12 +85,37 @@ const TapMe: React.FC = () => {
     }
   };
 
+  
+  const syncCoins = useCallback(() => {
+    if (userId && accumulatedCoins.current > 0) {
+      updateCoins({ variables: { id: userId, coins: coins + accumulatedCoins.current } })
+        .then(() => {
+          console.log('Coins updated successfully');
+          accumulatedCoins.current = 0; 
+        })
+        .catch((err) => {
+          console.error('Error updating coins:', err);
+        });
+    }
+  }, [userId, coins, updateCoins]);
+
+  
+  useEffect(() => {
+    return () => {
+      if (updateTimeout.current) {
+        clearTimeout(updateTimeout.current);
+      }
+      syncCoins();  
+    };
+  }, [syncCoins]);
+
  
   const handleTap = (e: React.MouseEvent) => {
     soundEffect.play();
-    const newCoins = coins + 1;
-    setCoins(newCoins);
+    setCoins((prevCoins) => prevCoins + 1);
+    accumulatedCoins.current += 1;  
     setProgress((prev) => (prev + 10 > 100 ? 0 : prev + 10));
+
     const rect = e.currentTarget.getBoundingClientRect();
     const newBubble = {
       id: Date.now(),
@@ -102,41 +127,33 @@ const TapMe: React.FC = () => {
     }
     setBubbles((prev) => [...prev, newBubble]);
 
-     
     setTimeout(() => {
       setBubbles((prev) => prev.filter((bubble) => bubble.id !== newBubble.id));
     }, 1000);
-  
-    if (userId) {
-      updateCoins({ variables: { id: userId, coins: newCoins } })
-        .then(() => {
-          console.log('Coins updated successfully');
-        })
-        .catch((err) => {
-          console.error('Error updating coins:', err);
-        });
-    } else {
-      console.error('User ID not found. Ensure the user creation was successful.');
+ 
+    if (updateTimeout.current) {
+      clearTimeout(updateTimeout.current);
     }
+    updateTimeout.current = setTimeout(syncCoins, 5000);  
   };
 
- 
-  if (loading) return <p>Loading...</p>;
+
+  if (loading) return <Loader />;
 
   if (error) {
     console.error('Error loading user data:', error);
-    return <p>Error loading user data: {error.message}</p>;
+    return <ErrorDisplay message="Error loading user data. Please try again later." />;
   }
 
   return (
     <div className="container">
       <div className="coin-display">
-      <span className="coin-count">
+        <span className="coin-count">
           <LiaCoinsSolid className="coin-icon" /> {coins}
         </span>
         <div className="user-level">Level {level}</div>
       </div>
-       <motion.button
+      <motion.button
         className="tap-button"
         onClick={handleTap}
         whileTap={{ scale: 0.9 }}

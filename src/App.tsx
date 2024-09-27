@@ -1,6 +1,6 @@
 import React from 'react'
 import './App.css';
-import TapMe from './TapMe';
+import TapMe from './components/TapMe';
  
 
 function App() {

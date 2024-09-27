@@ -1,0 +1,17 @@
+.error-display {
+    text-align: center;
+    padding: 20px;
+    background-color: #f44336; 
+    color: white;
+    border-radius: 8px;
+    margin: 20px;
+  }
+  
+  .error-display h2 {
+    margin-bottom: 10px;
+  }
+  
+  .error-display p {
+    font-size: 16px;
+  }
+  
